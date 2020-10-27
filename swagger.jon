@@ -1,0 +1,164 @@
+{​​
+  "openapi": "3.0.1",
+  "info": {​​
+    "title": "Edenred Antifraude API",
+    "description": "API respons�vel por encapsular as validac�es referentes ao processo de anti fraude e PLD da Edenred",
+    "contact": {​​
+      "name": "ITEC Application Services",
+      "email": "***"
+    }​​
+  }​​,
+  "paths": {​​
+    "/api/analisecompliance/analisar-cnpj": {​​
+      "post": {​​
+        "tags": [
+          "AnaliseCompliance"
+        ],
+        "requestBody": {​​
+          "content": {​​
+            "application/json": {​​
+              "schema": {​​
+                "$ref": "#/components/schemas/AntiFraudeRequest"
+              }​​
+            }​​,
+            "text/json": {​​
+              "schema": {​​
+                "$ref": "#/components/schemas/AntiFraudeRequest"
+              }​​
+            }​​,
+            "application/*+json": {​​
+              "schema": {​​
+                "$ref": "#/components/schemas/AntiFraudeRequest"
+              }​​
+            }​​
+          }​​
+        }​​,
+        "responses": {​​
+          "200": {​​
+            "description": "Success"
+          }​​
+        }​​
+      }​​
+    }​​,
+    "/api/analisecompliance/analisar-cpf": {​​
+      "post": {​​
+        "tags": [
+          "AnaliseCompliance"
+        ],
+        "requestBody": {​​
+          "content": {​​
+            "application/json": {​​
+              "schema": {​​
+                "$ref": "#/components/schemas/AntiFraudeRequest"
+              }​​
+            }​​,
+            "text/json": {​​
+              "schema": {​​
+                "$ref": "#/components/schemas/AntiFraudeRequest"
+              }​​
+            }​​,
+            "application/*+json": {​​
+              "schema": {​​
+                "$ref": "#/components/schemas/AntiFraudeRequest"
+              }​​
+            }​​
+          }​​
+        }​​,
+        "responses": {​​
+          "200": {​​
+            "description": "Success"
+          }​​
+        }​​
+      }​​
+    }​​
+  }​​,
+  "components": {​​
+    "schemas": {​​
+      "NaturezaJuridica": {​​
+        "required": [
+          "codigo"
+        ],
+        "type": "object",
+        "properties": {​​
+          "codigo": {​​
+            "type": "string"
+          }​​,
+          "descricao": {​​
+            "type": "string",
+            "nullable": true
+          }​​
+        }​​,
+        "additionalProperties": false
+      }​​,
+      "Cnae": {​​
+        "required": [
+          "codigo"
+        ],
+        "type": "object",
+        "properties": {​​
+          "codigo": {​​
+            "type": "string"
+          }​​,
+          "descricao": {​​
+            "type": "string",
+            "nullable": true
+          }​​
+        }​​,
+        "additionalProperties": false
+      }​​,
+      "Socio": {​​
+        "required": [
+          "documento",
+          "nome"
+        ],
+        "type": "object",
+        "properties": {​​
+          "nome": {​​
+            "type": "string"
+          }​​,
+          "documento": {​​
+            "maxLength": 14,
+            "minLength": 11,
+            "type": "string"
+          }​​
+        }​​,
+        "additionalProperties": false
+      }​​,
+      "AntiFraudeRequest": {​​
+        "required": [
+          "documento",
+          "nome"
+        ],
+        "type": "object",
+        "properties": {​​
+          "nome": {​​
+            "type": "string"
+          }​​,
+          "documento": {​​
+            "maxLength": 14,
+            "minLength": 11,
+            "type": "string"
+          }​​,
+          "naturezaJuridica": {​​
+            "$ref": "#/components/schemas/NaturezaJuridica"
+          }​​,
+          "cnaes": {​​
+            "type": "array",
+            "items": {​​
+              "$ref": "#/components/schemas/Cnae"
+            }​​,
+            "nullable": true
+          }​​,
+          "socios": {​​
+            "type": "array",
+            "items": {​​
+              "$ref": "#/components/schemas/Socio"
+            }​​,
+            "nullable": true
+          }​​
+        }​​,
+        "additionalProperties": false
+      }​​
+    }​​
+  }​​
+}​​
