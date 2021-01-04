@@ -1,0 +1,155 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "entityCode": {
+      "type": "string",
+      "maxLength": 3,
+      "metadata": {
+        "description": "Edenred entity code"
+      }
+    },
+    "appName": {
+      "type": "string",
+      "metadata": {
+        "description": "Application name"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "metadata": {
+        "description": "Environment"
+      },
+      "allowedValues": [
+        "DEV",
+        "UAT",
+        "QA",
+        "STG",
+        "PROD"
+      ]
+    },
+    "location":{
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location where resource will be deployed to"
+      }
+    },
+    "region":{
+      "type": "string",
+      "defaultValue": "none",
+      "minLength": 4,
+      "maxLength": 5,
+      "metadata": {
+        "description": "Region code used in resource name when a resource is deployed in several regions."
+      },
+      "allowedValues": [
+        "none",
+        "use1", "use2", "usc1", "usnc1", "ussc1", "usw1", "usw2", 
+        "cae1", "cac1",
+        "brs1",
+        "eun1", "euwe",
+        "frc1", "frs1",
+        "ukw1", "uks1",
+        "gec1", "gene1", "gen1", "gewc1",
+        "swn1", "sww1",
+        "nwe1", "nww1",
+        "asse", "aue1", "ase1",
+        "ause1", "auc1", "auc2",
+        "che1", "chn1", "che2", "chn2",
+        "inc1", "inw1", "ins1",
+        "jae1",
+        "koc1", "kos1",
+        "saw1", "san1",
+        "uaec1", "uaen1"
+      ]
+    },
+    "poolName": {
+      "type": "string",
+      "defaultValue": "none",
+      "metadata": {
+        "description": "Elastic pool name"
+      }
+    },
+    "dbName": {
+      "type": "string",
+      "metadata": {
+        "description": "Database name"
+      }
+    },
+    "dbCollation": {
+      "type": "string",
+      "defaultValue": "SQL_Latin1_General_CP1_CI_AS"
+    },
+    "dbSkuName": {
+      "type": "string",
+      "defaultValue": "S0",
+      "metadata": {
+        "description": "Describes database's pricing tier and instance size. Check details at  https://azure.microsoft.com/en-us/pricing/details/sql-database/single/."
+      }
+    },
+    "dbZoneRedundant": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "autoPauseDelay": {
+      "type": "int",
+      "defaultValue": -1,
+      "metadata": {
+        "description": "Time in minutes after which database is automatically paused. A value of -1 means that automatic pause is disabled."
+      }
+    },
+    "minCapacity": {
+      "type": "string",
+      "defaultValue": "0.5",
+      "metadata": {
+        "description": "Minimal capacity that database will always have allocated, if not paused."
+      }
+    },
+    "backupShortTermRetentionDays": {
+      "type": "int",
+      "minValue": 1,
+      "maxValue": 35,
+      "defaultValue": 7,
+      "metadata": {
+        "description": "The backup retention period in days. This is how many days Point-in-Time Restore will be supported."
+      }
+    }
+  },
+  "variables": {
+    "environmentSuffix": "[if(equals(parameters('environment'), 'PROD'), '-p', if(equals(parameters('environment'), 'STG'), '-s', if(equals(parameters('environment'), 'UAT'), '-a', if(equals(parameters('environment'), 'QA'), '-q', '-d'))))]", 
+    "regionSuffix": "[if(equals(parameters('region'), 'none'), '', concat('-', parameters('region')))]",
+    "dbServerName": "[concat(parameters('entityCode'),'-',parameters('appName'),variables('regionSuffix'),'-sqlsrv',variables('environmentSuffix'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2019-06-01-preview",
+      "type": "Microsoft.Sql/servers/databases",
+      "location": "[parameters('location')]",
+      "name": "[concat(variables('dbServerName'),'/',parameters('dbName'))]",
+      "properties": {
+          "elasticPoolId": "[if(equals(parameters('poolName'), 'none'),json('null'),resourceId('Microsoft.Sql/servers/elasticPools',variables('dbServerName'),parameters('poolName')))]",
+          "collation": "[parameters('dbCollation')]",
+          "zoneRedundant": "[parameters('dbZoneRedundant')]",
+          "autoPauseDelay": "[parameters('autoPauseDelay')]",
+          "minCapacity": "[float(parameters('minCapacity'))]"
+      },
+      "sku": {
+          "name": "[if(equals(parameters('poolName'), 'none'), parameters('dbSkuName'), 'ElasticPool')]"
+      },
+      "resources": [
+        {
+          "name": "default",
+          "type": "backupShortTermRetentionPolicies",
+          "apiVersion": "2017-10-01-preview",
+          "properties": {
+            "retentionDays": "[parameters('backupShortTermRetentionDays')]"
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers/databases', variables('dbServerName'), parameters('dbName'))]"
+          ]
+        }
+      ]
+    }
+  ]
+}
