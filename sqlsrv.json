@@ -72,7 +72,7 @@
     }
   },
   "variables": {
-    "environmentSuffix": "[if(equals(parameters('environment'), 'PROD'), '-p', if(equals(parameters('environment'), 'STG'), '-s', if(equals(parameters('environment'), 'UAT'), '-a', if(equals(parameters('environment'), 'QA'), '-q','-d')))]",
+    "environmentSuffix": "[if(equals(parameters('environment'), 'PROD'), '-p', if(equals(parameters('environment'), 'STG'), '-s', if(equals(parameters('environment'), 'UAT'), '-a', if(equals(parameters('environment'), 'QA'), '-q','-d'))))]",
     "regionSuffix": "[if(equals(parameters('region'), 'none'), '', concat('-', parameters('region')))]",
     "dbServerName": "[concat(parameters('entityCode'),'-',parameters('appName'),variables('regionSuffix'),'-sqlsrv',variables('environmentSuffix'))]"
   },
