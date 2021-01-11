@@ -1,0 +1,225 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "entityCode": {
+            "type": "string",
+            "maxLength": 3,
+            "metadata": {
+                "description": "Edenred entity code"
+            }
+        },
+        "appName": {
+            "type": "string",
+            "metadata": {
+                "description": "Application name"
+            }
+        },
+
+        "environment": {
+            "type": "string",
+            "metadata": {
+                "description": "Environment"
+            },
+            "allowedValues": [
+                "DEV",
+                "UAT",
+                "STG",
+                "PROD"
+            ]
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location where resource will be deployed to"
+            }
+        },
+        "region": {
+            "type": "string",
+            "defaultValue": "none",
+            "minLength": 4,
+            "maxLength": 5,
+            "metadata": {
+                "description": "Region code used in resource name when a resource is deployed in several regions."
+            },
+            "allowedValues": [
+                "none",
+                "use1",
+                "use2",
+                "usc1",
+                "usnc1",
+                "ussc1",
+                "usw1",
+                "usw2",
+                "cae1",
+                "cac1",
+                "brs1",
+                "eun1",
+                "euwe",
+                "frc1",
+                "frs1",
+                "ukw1",
+                "uks1",
+                "gec1",
+                "gene1",
+                "gen1",
+                "gewc1",
+                "swn1",
+                "sww1",
+                "nwe1",
+                "nww1",
+                "asse",
+                "aue1",
+                "ase1",
+                "ause1",
+                "auc1",
+                "auc2",
+                "che1",
+                "chn1",
+                "che2",
+                "chn2",
+                "inc1",
+                "inw1",
+                "ins1",
+                "jae1",
+                "koc1",
+                "kos1",
+                "saw1",
+                "san1",
+                "uaec1",
+                "uaen1"
+            ]
+        },
+        "sqlinstanceAdministratorLogin": {
+            "type": "string",
+            "metadata": {
+                "description": "SQL instance administrator login"
+            }
+        },
+        "sqlinstanceAdministratorPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "SQL instance administrator password"
+            }
+        },
+        "sqlinstanceVnet": {
+            "type": "string",
+            "metadata": {
+                "description": "SQL instance Virtual Network Name"
+            }
+        },
+        "sqlinstanceSubnet": {
+            "type": "string",
+            "metadata": {
+                "description": "SQL instance Subnet Name"
+            }
+        },
+        "skuEdition": {
+            "type": "string",
+            "defaultValue": "GeneralPurpose",
+            "metadata": {
+                "description": "SKU Edition"
+            }
+        },
+        "skuName": {
+            "type": "string",
+            "defaultValue": "GP_Gen5",
+            "metadata": {
+                "description": "SKU Name"
+            }
+        },
+        "sqlinstancehardwareFamily": {
+            "type": "string",
+            "defaultValue": "Gen5",
+            "metadata": {
+                "description": "SQL instance hardware family"
+            }
+        },
+        "sqlinstancelicenseType": {
+            "type": "string",
+            "defaultValue": "BasePrice",
+            "metadata": {
+                "description": "SQL instance license type"
+            }
+        },
+        "sqlinstanceStorageSizeInGB": {
+            "type": "int",
+            "defaultValue": 64,
+            "metadata": {
+                "description": "SQL instance Storage Size in GB"
+            }
+        },
+        "sqlinstancevCores": {
+            "type": "int",
+            "defaultValue": 4,
+            "metadata": {
+                "description": "SQL instance vCores"
+            }
+        },
+        "sqlinstanceCollation": {
+            "type": "string",
+            "defaultValue": "SQL_Latin1_General_CP1_CI_AS",
+            "metadata": {
+                "description": "SQL instance collation"
+            }
+        },
+        "sqlinstancepublicDataEndpointEnabled": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Whether the SQL Instance public Data Endpoint is Enabled or not"
+            }
+        },
+        "vnetResourceGroupName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Virtual Network resource group name"
+            }
+        }
+    },
+    "variables": {
+        "environmentSuffix": "[if(equals(parameters('environment'), 'PROD'), '-p', if(equals(parameters('environment'), 'STG'), '-s', if(equals(parameters('environment'), 'UAT'), '-a', '-d')))]",
+        "regionSuffix": "[if(equals(parameters('region'), 'none'), '', concat('-', parameters('region')))]",
+        "sqlManagedInstanceName": "[concat(parameters('entityCode'),'-',parameters('appName'),variables('regionSuffix'),'-sqlinst',variables('environmentSuffix'))]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Sql/managedInstances",
+            "dependsOn": [
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "location": "[parameters('location')]",
+            "name": "[variables('sqlManagedInstanceName')]",
+            "sku": {
+                "name": "[parameters('skuName')]",
+                "tier": "[parameters('skuEdition')]"
+            },
+            "properties": {
+                "administratorLogin": "[parameters('sqlinstanceAdministratorLogin')]",
+                "administratorLoginPassword": "[parameters('sqlinstanceAdministratorPassword')]",
+                "subnetId": "[resourceId(parameters('vnetResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('sqlinstanceVnet'), parameters('sqlinstanceSubnet'))]",
+                "storageSizeInGB": "[parameters('sqlinstanceStorageSizeInGB')]",
+                "vCores": "[parameters('sqlinstancevCores')]",
+                "licenseType": "[parameters('sqlinstancelicenseType')]",
+                "hardwareFamily": "[parameters('sqlinstancehardwareFamily')]",
+                "collation": "[parameters('sqlinstanceCollation')]",
+                "publicDataEndpointEnabled": "[parameters('sqlinstancepublicDataEndpointEnabled')]"
+            }
+        }
+    ],
+    "outputs": {
+        "name": {
+            "type": "string",
+            "value": "[variables('sqlManagedInstanceName')]"
+        },
+        "uri": {
+            "type": "string",
+            "value": "[reference(variables('sqlManagedInstanceName')).fullyQualifiedDomainName]"
+        }
+    }
+}
