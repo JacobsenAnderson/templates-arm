@@ -1,6 +1,6 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
+    "contentVersion": "1.0.0.1",
     "parameters": {
         "entityCode": {
             "type": "string",
@@ -23,6 +23,7 @@
             },
             "allowedValues": [
                 "DEV",
+                "QA",
                 "UAT",
                 "STG",
                 "PROD"
@@ -177,10 +178,17 @@
             "metadata": {
                 "description": "Virtual Network resource group name"
             }
+        },
+        "timezoneId": {
+            "type": "string",
+            "defaultValue": "UTC",
+            "metadata": {
+                "description": "Id of the timezone"
+            }
         }
     },
     "variables": {
-        "environmentSuffix": "[if(equals(parameters('environment'), 'PROD'), '-p', if(equals(parameters('environment'), 'STG'), '-s', if(equals(parameters('environment'), 'UAT'), '-a', '-d')))]",
+        "environmentSuffix": "[if(equals(parameters('environment'), 'PROD'), '-p', if(equals(parameters('environment'), 'STG'), '-s', if(equals(parameters('environment'), 'UAT'), '-a', if(equals(parameters('environment'), 'QA'), '-q','-d'))))]",
         "regionSuffix": "[if(equals(parameters('region'), 'none'), '', concat('-', parameters('region')))]",
         "sqlManagedInstanceName": "[concat(parameters('entityCode'),'-',parameters('appName'),variables('regionSuffix'),'-sqlinst',variables('environmentSuffix'))]"
     },
@@ -208,7 +216,8 @@
                 "licenseType": "[parameters('sqlinstancelicenseType')]",
                 "hardwareFamily": "[parameters('sqlinstancehardwareFamily')]",
                 "collation": "[parameters('sqlinstanceCollation')]",
-                "publicDataEndpointEnabled": "[parameters('sqlinstancepublicDataEndpointEnabled')]"
+                "publicDataEndpointEnabled": "[parameters('sqlinstancepublicDataEndpointEnabled')]",
+                "timezoneId": "[parameters('timezoneId')]"
             }
         }
     ],
