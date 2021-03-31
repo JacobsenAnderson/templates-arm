@@ -1,0 +1,502 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sa-azr-adadm-p": {
+            "type": "securestring"
+        },
+        "goldaccount": {
+            "type": "securestring"
+        },
+        "EntityCode": {
+            "type": "string"
+        },
+        "SubnetName": {
+            "type": "string"
+        },
+        "Size": {
+            "type": "string"
+        },
+        "DiskType": {
+            "type": "string"
+        },
+        "DiskArray": {
+            "type": "array"
+        },
+        "OS": {
+            "type": "string"
+        },
+        "DiskCreateOrAttach": {
+            "type": "string"
+        },
+        "ServerFunction": {
+            "type": "string"
+        },
+        "AvSetPlatformUpdateDomainCount": {
+            "type": "string"
+        },
+        "AvSetPlatformFaultDomainCount": {
+            "type": "string"
+        },
+        "Environment": {
+            "type": "string"
+        },
+        "SasToken": {
+            "type": "securestring"
+        },
+        "SubEnv": {
+            "type": "string"
+        },
+        "Start": {
+            "type": "string"
+        },
+        "Stop": {
+            "type": "string"
+        },
+        "appCode": {
+            "type": "string"
+        },
+        "ADDomain": {
+            "type": "string"
+        },
+        "AdminPassword": {
+            "type": "securestring"
+        },
+        "SSHKey": {
+            "type": "securestring"
+        },
+        "klAdminLocalPassword": {
+            "type": "securestring"
+        },
+        "NumberSuffix": {
+            "type": "string"
+        },
+        "appName": {
+            "type": "string"
+        }
+    },
+    "functions": [],
+    "variables": {
+        "adminPasswordOrSSHKey": "[if(equals(parameters('OS'), 'RedHat'), parameters('SSHKey'), if(equals(parameters('OS'), 'Oracle'), parameters('SSHKey'), parameters('AdminPassword')))]",
+        "DomainAdminPassword": "[if(equals(parameters('ADDomain'),'GOLD'), parameters('goldaccount'), parameters('sa-azr-adadm-p'))]",
+        "templatesLocation": "https://ehqinfratemplatesprod.blob.core.windows.net/",
+        "CustomByBU": {
+            //hub brazil
+            "brs": {
+                "prod": {
+                    "VaultName": "ITEC-BRAZIL-RV",
+                    "VaultRGName": "brso-recovery-rg",
+                    "vNetName": "itec-brso-backend-vnet",
+                    "vNetResourceGroup": "brso-network-rg",
+                    "diagStorageName": "brsosharedsvcstorage",
+                    "LAWName": "itec-brso-law",
+                    "LAWSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "LAWResourceGroup": "brso-automation-rg",
+                    "WorkspaceResourceGroup": "brso-automation-rg",
+                    "WorkspaceSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "RegionCode": "brso",
+                    "TimeZone": "-3",
+                    "CountryCode": "br"
+                }
+            },
+            //ticketlog
+            "efm": {
+                "prod": {
+                    "VaultName": "tktlog-dev-rv",
+                    "VaultRGName": "recovery-prod-rg",
+                    "vNetName": "tlog-prod-brazilsouth-vnet",
+                    "vNetResourceGroup": "tlog-prod-network-rg",
+                    "diagStorageName": "tlogsharedstorageprod",
+                    "LAWName": "itec-brso-law",
+                    "LAWSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "LAWResourceGroup": "brso-automation-rg",
+                    "WorkspaceResourceGroup": "brso-automation-rg",
+                    "WorkspaceSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "RegionCode": "brso",
+                    "TimeZone": "-3",
+                    "CountryCode": "br"
+                },
+                "dev": {
+                    "VaultName": "tktlog-prod-rv",
+                    "VaultRGName": "recovery-dev-rg",
+                    "vNetName": "tlog-dev-brazilsouth-vnet",
+                    "vNetResourceGroup": "tlog-dev-network-rg",
+                    "diagStorageName": "tlogsharedstoragedev",
+                    "LAWName": "itec-brso-law",
+                    "LAWSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "LAWResourceGroup": "brso-automation-rg",
+                    "WorkspaceResourceGroup": "brso-automation-rg",
+                    "WorkspaceSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "RegionCode": "brso",
+                    "TimeZone": "-3",
+                    "CountryCode": "br"
+                }
+            },
+            //manutenção ticket log
+            "mnt": {
+                "prod": {
+                    "VaultName": "mnt-prod-rv",
+                    "VaultRGName": "recovery-prod-rg",
+                    "vNetName": "mnt-prod-brazilsouth-vnet",
+                    "vNetResourceGroup": "mnt-prod-network-rg",
+                    "diagStorageName": "mntsharedstorageprod",
+                    "LAWName": "itec-brso-law",
+                    "LAWSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "LAWResourceGroup": "brso-automation-rg",
+                    "WorkspaceResourceGroup": "brso-automation-rg",
+                    "WorkspaceSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "RegionCode": "brso",
+                    "TimeZone": "-3",
+                    "CountryCode": "br"
+                },
+                "dev": {
+                    "VaultName": "mnt-dev-rv",
+                    "VaultRGName": "recovery-dev-rg",
+                    "vNetName": "mnt-dev-brazilsouth-vnet",
+                    "vNetResourceGroup": "mnt-dev-network-rg",
+                    "diagStorageName": "mntsharedstoragedev",
+                    "LAWName": "itec-brso-law",
+                    "LAWSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "LAWResourceGroup": "brso-automation-rg",
+                    "WorkspaceResourceGroup": "brso-automation-rg",
+                    "WorkspaceSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "RegionCode": "brso",
+                    "TimeZone": "-3",
+                    "CountryCode": "br"
+                }
+            },
+            //Ticket Serviços/Benefits
+            "tsr": {
+                "prod": {
+                    "VaultName": "tsr-prod-rv",
+                    "VaultRGName": "recovery-prod-rg",
+                    "vNetName": "tsr-prod-brazilsouth-vnet",
+                    "vNetResourceGroup": "tsr-prod-network-rg",
+                    "diagStorageName": "tsrsharedstorageprod",
+                    "LAWName": "itec-brso-law",
+                    "LAWSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "LAWResourceGroup": "brso-automation-rg",
+                    "WorkspaceResourceGroup": "brso-automation-rg",
+                    "WorkspaceSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "RegionCode": "brso",
+                    "TimeZone": "-3",
+                    "CountryCode": "br"
+                },
+                "dev": {
+                    "VaultName": "tsr-dev-rv",
+                    "VaultRGName": "recovery-dev-rg",
+                    "vNetName": "tsr-dev-brazilsouth-vnet",
+                    "vNetResourceGroup": "tsr-dev-network-rg",
+                    "diagStorageName": "tsrsharedstoragedev",
+                    "LAWName": "itec-brso-law",
+                    "LAWSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "LAWResourceGroup": "brso-automation-rg",
+                    "WorkspaceResourceGroup": "brso-automation-rg",
+                    "WorkspaceSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "RegionCode": "brso",
+                    "TimeZone": "-3",
+                    "CountryCode": "br"
+                }
+            },
+            //Repom
+            "rep": {
+                "prod": {
+                    "VaultName": "rpm-prod-rv",
+                    "VaultRGName": "recovery-prod-rg",
+                    "vNetName": "rpm-prod-brazilsouth-vnet",
+                    "vNetResourceGroup": "rpm-prod-network-rg",
+                    "diagStorageName": "rpmsharedstorageprod",
+                    "LAWName": "itec-brso-law",
+                    "LAWSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "LAWResourceGroup": "brso-automation-rg",
+                    "WorkspaceResourceGroup": "brso-automation-rg",
+                    "WorkspaceSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "RegionCode": "brso",
+                    "TimeZone": "-3",
+                    "CountryCode": "br"
+                },
+                "dev": {
+                    "VaultName": "rpm-dev-rv",
+                    "VaultRGName": "recovery-dev-rg",
+                    "vNetName": "rpm-dev-brazilsouth-vnet",
+                    "vNetResourceGroup": "rpm-dev-network-rg",
+                    "diagStorageName": "rpmsharedstoragedev",
+                    "LAWName": "itec-brso-law",
+                    "LAWSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "LAWResourceGroup": "brso-automation-rg",
+                    "WorkspaceResourceGroup": "brso-automation-rg",
+                    "WorkspaceSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "RegionCode": "brso",
+                    "TimeZone": "-3",
+                    "CountryCode": "br"
+                }
+            },
+            //ITEC Brazil
+            "ebr": {
+                "prod": {
+                    "VaultName": "bra-prod-rv",
+                    "VaultRGName": "recovery-prod-rg",
+                    "vNetName": "bra-prod-brazilsouth-vnet",
+                    "vNetResourceGroup": "bra-prod-network-rg",
+                    "diagStorageName": "brasharedstorageprod",
+                    "LAWName": "itec-brso-law",
+                    "LAWSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "LAWResourceGroup": "brso-automation-rg",
+                    "WorkspaceResourceGroup": "brso-automation-rg",
+                    "WorkspaceSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "RegionCode": "brso",
+                    "TimeZone": "-3",
+                    "CountryCode": "br"
+                },
+                "dev": {
+                    "VaultName": "bra-dev-rv",
+                    "VaultRGName": "recovery-dev-rg",
+                    "vNetName": "bra-dev-brazilsouth-vnet",
+                    "vNetResourceGroup": "bra-dev-network-rg",
+                    "diagStorageName": "brasharedstoragedev",
+                    "LAWName": "itec-brso-law",
+                    "LAWSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "LAWResourceGroup": "brso-automation-rg",
+                    "WorkspaceResourceGroup": "brso-automation-rg",
+                    "WorkspaceSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "RegionCode": "brso",
+                    "TimeZone": "-3",
+                    "CountryCode": "br"
+                }
+            },
+            //ITEC Mexico
+            "itc": {
+                "prod": {
+                    "VaultName": "ITC-PROD-RV",
+                    "VaultRGName": "recovery-prod-rg",
+                    "vNetName": "itc-prod-eastus2-vnet",
+                    "vNetResourceGroup": "itec-hana-prod-network-rg",
+                    "diagStorageName": "itchanasharedstorageprod",
+                    "LAWName": "itec-use2-law",
+                    "LAWSubId": "4aeed0a7-40ab-4436-a6b1-fbf990405844",
+                    "LAWResourceGroup": "use2-automation-rg",
+                    "WorkspaceResourceGroup": "use2-automation-rg",
+                    "WorkspaceSubId": "4aeed0a7-40ab-4436-a6b1-fbf990405844",
+                    "RegionCode": "use2",
+                    "TimeZone": "-6",
+                    "CountryCode": "mx"
+                },
+                "dev": {
+                    "VaultName": "ITC-DEV-RV",
+                    "VaultRGName": "recovery-dev-rg",
+                    "vNetName": "itc-dev-eastus2-vnet",
+                    "vNetResourceGroup": "itec-hana-dev-network-rg",
+                    "diagStorageName": "itchanasharedstoragedev",
+                    "LAWName": "itec-use2-law",
+                    "LAWSubId": "4aeed0a7-40ab-4436-a6b1-fbf990405844",
+                    "LAWResourceGroup": "use2-automation-rg",
+                    "WorkspaceResourceGroup": "use2-automation-rg",
+                    "WorkspaceSubId": "4aeed0a7-40ab-4436-a6b1-fbf990405844",
+                    "RegionCode": "use2",
+                    "TimeZone": "-6",
+                    "CountryCode": "mx"
+                }
+            },
+            //HANA
+            "hna": {
+                "prod": {
+                    "VaultName": "hana-prod-rv",
+                    "VaultRGName": "recovery-prod-rg",
+                    "vNetName": "hana-prod-eastus2-vnet",
+                    "vNetResourceGroup": "hana-prod-network-rg",
+                    "diagStorageName": "hanasharedstorageprod",
+                    "LAWName": "itec-use2-law",
+                    "LAWSubId": "4aeed0a7-40ab-4436-a6b1-fbf990405844",
+                    "LAWResourceGroup": "use2-automation-rg",
+                    "WorkspaceResourceGroup": "use2-automation-rg",
+                    "WorkspaceSubId": "4aeed0a7-40ab-4436-a6b1-fbf990405844",
+                    "RegionCode": "use2",
+                    "TimeZone": "-6",
+                    "CountryCode": "mx",
+                    "emea": {
+
+                    }
+                },
+                "dev": {
+                    "VaultName": "hana-dev-rv",
+                    "VaultRGName": "recovery-dev-rv",
+                    "vNetName": "hana-dev-vnet",
+                    "vNetResourceGroup": "hana-dev-network-rg",
+                    "diagStorageName": "hanasharedstoragedev",
+                    "LAWName": "itec-use2-law",
+                    "LAWSubId": "4aeed0a7-40ab-4436-a6b1-fbf990405844",
+                    "LAWResourceGroup": "use2-automation-rg",
+                    "WorkspaceResourceGroup": "use2-automation-rg",
+                    "WorkspaceSubId": "4aeed0a7-40ab-4436-a6b1-fbf990405844",
+                    "RegionCode": "use2",
+                    "TimeZone": "-6",
+                    "CountryCode": "mx"
+                }
+            },
+            //K8S Brazil
+            "k8s": {
+                "prod": {
+                    "VaultName": "ESPP-PROD-RV",
+                    "VaultRGName": "recovery-prod-rg",
+                    "vNetName": "espp-prod-vnet",
+                    "vNetResourceGroup": "espp-prod-network-rg",
+                    "diagStorageName": "esppsharedstorageprod",
+                    "LAWName": "itec-brso-law",
+                    "LAWSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "LAWResourceGroup": "brso-automation-rg",
+                    "WorkspaceResourceGroup": "brso-automation-rg",
+                    "WorkspaceSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "RegionCode": "brso",
+                    "TimeZone": "-3",
+                    "CountryCode": "br"
+                },
+                "dev": {
+                    "VaultName": "ESPP-DEV-RV",
+                    "VaultRGName": "recovery-dev-rg",
+                    "vNetName": "espp-dev-vnet",
+                    "vNetResourceGroup": "espp-dev-network-rg",
+                    "diagStorageName": "esppsharedstoragedev",
+                    "LAWName": "itec-brso-law",
+                    "LAWSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "LAWResourceGroup": "brso-automation-rg",
+                    "WorkspaceResourceGroup": "brso-automation-rg",
+                    "WorkspaceSubId": "1fc3fe6f-8bfb-48cb-98d6-3f8872d70de9",
+                    "RegionCode": "brso",
+                    "TimeZone": "-3",
+                    "CountryCode": "br"
+                }
+            }
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2019-10-01",
+            "name": "VirtualMachine",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(uri(variables('templatesLocation'), 'templates/VirtualMachine.json'), parameters('sasToken'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "LAWName": {
+                        "value": "[variables('CustomByBU')[parameters('EntityCode')][parameters('SubEnv')].LAWName]"
+                    },
+                    "LAWSubId": {
+                        "value": "[variables('CustomByBU')[parameters('EntityCode')][parameters('SubEnv')].LAWSubId]"
+                    },
+                    "LAWResourceGroup": {
+                        "value": "[variables('CustomByBU')[parameters('EntityCode')][parameters('SubEnv')].LAWResourceGroup]"
+                    },
+                    "VaultRGName": {
+                        "value": "[variables('CustomByBU')[parameters('EntityCode')][parameters('SubEnv')].VaultRGName]"
+                    },
+                    "CountryCode": {
+                        "value": "[variables('CustomByBU')[parameters('EntityCode')][parameters('SubEnv')].CountryCode]"
+                    },
+                    "WorkspaceSubId": {
+                        "value": "[variables('CustomByBU')[parameters('EntityCode')][parameters('SubEnv')].WorkspaceSubId]"
+                    },
+                    "WorkspaceResourceGroup": {
+                        "value": "[variables('CustomByBU')[parameters('EntityCode')][parameters('SubEnv')].WorkspaceResourceGroup]"
+                    },
+                    "RegionCode": {
+                        "value": "[variables('CustomByBU')[parameters('EntityCode')][parameters('SubEnv')].RegionCode]"
+                    },
+                    "VaultName": {
+                        "value": "[variables('CustomByBU')[parameters('EntityCode')][parameters('SubEnv')].VaultName]"
+                    },
+                    "vNetResourceGroup": {
+                        "value": "[variables('CustomByBU')[parameters('EntityCode')][parameters('SubEnv')].vNetResourceGroup]"
+                    },
+                    "vNetName": {
+                        "value": "[variables('CustomByBU')[parameters('EntityCode')][parameters('SubEnv')].vNetName]"
+                    },
+                    "diagStorageName": {
+                        "value": "[variables('CustomByBU')[parameters('EntityCode')][parameters('SubEnv')].diagStorageName]"
+                    },
+                    "TimeZone": {
+                        "value": "[variables('CustomByBU')[parameters('EntityCode')][parameters('SubEnv')].TimeZone]"
+                    },
+                    "templatesLocation": {
+                        "value": "[variables('templatesLocation')]"
+                    },
+                    "DomainAdminPassword": {
+                        "value": "[variables('DomainAdminPassword')]"
+                    },
+                    "adminPasswordOrSSHKey": {
+                        "value": "[variables('adminPasswordOrSSHKey')]"
+                    },
+                    "NumberSuffix": {
+                        "value": "[parameters('NumberSuffix')]"
+                    },
+                    "klAdminLocalPassword": {
+                        "value": "[parameters('klAdminLocalPassword')]"
+                    },
+                    "EntityCode": {
+                        "value": "[parameters('EntityCode')]"
+                    },
+                    "SubnetName": {
+                        "value": "[parameters('SubnetName')]"
+                    },
+                    "Size": {
+                        "value": "[parameters('Size')]"
+                    },
+                    "DiskType": {
+                        "value": "[parameters('DiskType')]"
+                    },
+                    "DiskArray": {
+                        "value": "[parameters('DiskArray')]"
+                    },
+                    "OS": {
+                        "value": "[parameters('OS')]"
+                    },
+                    "DiskCreateOrAttach": {
+                        "value": "[parameters('DiskCreateOrAttach')]"
+                    },
+                    "ServerFunction": {
+                        "value": "[parameters('ServerFunction')]"
+                    },
+                    "AvSetPlatformUpdateDomainCount": {
+                        "value": "[parameters('AvSetPlatformUpdateDomainCount')]"
+                    },
+                    "AvSetPlatformFaultDomainCount": {
+                        "value": "[parameters('AvSetPlatformFaultDomainCount')]"
+                    },
+                    "Environment": {
+                        "value": "[parameters('Environment')]"
+                    },
+                    "SasToken": {
+                        "value": "[parameters('SasToken')]"
+                    },
+                    "SubEnv": {
+                        "value": "[parameters('SubEnv')]"
+                    },
+                    "Start": {
+                        "value": "[parameters('Start')]"
+                    },
+                    "Stop": {
+                        "value": "[parameters('Stop')]"
+                    },
+                    "appCode": {
+                        "value": "[parameters('appCode')]"
+                    },
+                    "ADDomain": {
+                        "value": "[parameters('ADDomain')]"
+                    },
+                    "appName": {
+                        "value": "[parameters('appName')]"
+                    },
+                    "keyVaultResourceGroup": {
+                        "value": "keyVaultResourceGroup"
+                    },
+                    "AvailabilitySet": {
+                        "value": "Yes"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}
