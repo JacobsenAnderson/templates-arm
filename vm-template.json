@@ -81,6 +81,39 @@
         "DomainAdminPassword": "[if(equals(parameters('ADDomain'),'GOLD'), parameters('goldaccount'), parameters('sa-azr-adadm-p'))]",
         "templatesLocation": "https://ehqinfratemplatesprod.blob.core.windows.net/",
         "CustomByBU": {
+            //EUSFLEET
+            "euf": {
+                "prod": {
+                    "VaultName": "eusfleet-prod-rv",
+                    "VaultRGName": "recovery-prod-rg",
+                    "vNetName": "euf-prod-eastus2-vnet",
+                    "vNetResourceGroup": "euf-prod-network-rg",
+                    "diagStorageName": "eufsharedstorageprod",
+                    "LAWName": "itec-use2-law",
+                    "LAWSubId": "4aeed0a7-40ab-4436-a6b1-fbf990405844",
+                    "LAWResourceGroup": "use2-automation-rg",
+                    "WorkspaceResourceGroup": "use2-automation-rg",
+                    "WorkspaceSubId": "4aeed0a7-40ab-4436-a6b1-fbf990405844",
+                    "RegionCode": "use2",
+                    "TimeZone": "-5",
+                    "CountryCode": "us"
+                },
+                "dev": {
+                    "VaultName": "eusfleet-dev-rv",
+                    "VaultRGName": "recovery-dev-rg",
+                    "vNetName": "euf-dev-eastus2-vnet",
+                    "vNetResourceGroup": "euf-dev-network-rg",
+                    "diagStorageName": "eufsharedstoragedev",
+                    "LAWName": "itec-use2-law",
+                    "LAWSubId": "4aeed0a7-40ab-4436-a6b1-fbf990405844",
+                    "LAWResourceGroup": "use2-automation-rg",
+                    "WorkspaceResourceGroup": "use2-automation-rg",
+                    "WorkspaceSubId": "4aeed0a7-40ab-4436-a6b1-fbf990405844",
+                    "RegionCode": "use2",
+                    "TimeZone": "-5",
+                    "CountryCode": "us"
+                }
+            },
             //hub brazil
             "brs": {
                 "prod": {
@@ -102,7 +135,7 @@
             //ticketlog
             "efm": {
                 "prod": {
-                    "VaultName": "tktlog-dev-rv",
+                    "VaultName": "tktlog-prod-rv",
                     "VaultRGName": "recovery-prod-rg",
                     "vNetName": "tlog-prod-brazilsouth-vnet",
                     "vNetResourceGroup": "tlog-prod-network-rg",
@@ -117,7 +150,7 @@
                     "CountryCode": "br"
                 },
                 "dev": {
-                    "VaultName": "tktlog-prod-rv",
+                    "VaultName": "tktlog-dev-rv",
                     "VaultRGName": "recovery-dev-rg",
                     "vNetName": "tlog-dev-brazilsouth-vnet",
                     "vNetResourceGroup": "tlog-dev-network-rg",
